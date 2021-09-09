@@ -81,8 +81,8 @@ Y0[,sum(abs(Y0)) == 0] <- runif(length(Y0[,sum(abs(Y0))==0]))*.Machine$double.ep
                  "B0-B4" = c(1,0,0,0,-1,0,0),
                  "B0-B5" = c(1,0,0,0,0,-1,0))
   
-  test = summary(glht(M,linfct=contr,df=3))
-  chi <- test[["model"]]@theta
+  test = summary(glht(M,linfct=contr,df=3), test=Chisqtest())
+  chi = test[["test"]][["SSH"]]
   coefs <- test[["model"]]@beta
   
 ####################################################################################################
@@ -105,13 +105,9 @@ chis_betas <- foreach(i=1:ncol(Y0), .combine=rbind, .packages=c('lme4','multcomp
                  "B0-B5" = c(1,0,0,0,0,-1,0))
   
   #test = summary(glht(M,linfct=mcp(tension=contr)))
-  test = summary(glht(M,linfct=contr,df=3))
-  chi = test[["model"]]@theta
+  test = summary(glht(M,linfct=contr,df=3), test=Chisqtest())
+  chi = test[["test"]][["SSH"]]
   coefs = test[["model"]]@beta
-  
-  if (i %% 10000 == 0) {
-    print(sprintf("Iteration: %i", i))
-  }
   
   c(chi,coefs)
 }
