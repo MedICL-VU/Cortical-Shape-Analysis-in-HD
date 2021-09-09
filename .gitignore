@@ -1,0 +1,6 @@
+data
+env
+versions
+.DS_Store
+.Rhistory
+.RDataTmp
