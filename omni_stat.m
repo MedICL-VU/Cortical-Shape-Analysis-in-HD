@@ -28,6 +28,11 @@ dx(demographics.cap_e_group==3) = {'HIGH'};
 subj = find((demographics.cag > 0 & demographics.cag < 37) | demographics.cag >= 37);
 Y0=Y0(subj,:);
 
+% correct SD correlation with volume
+if strcmp(cmeasure,'sd')
+    Y0=Y0./demographics.ticv;
+end
+
 age = demographics.age_at_scan(subj);
 sex = sex(subj);
 dx = dx(subj);
@@ -51,13 +56,13 @@ CapM = term( Pathology.MED );
 CapH = term( Pathology.HIGH );
 
 %% model setup
-contrast = Pathology.CNTRL - Pathology.MED;
+contrast = Pathology.CNTRL - Pathology.LOW;
 
 %For CAP: 
-M=Age+Duration+Pathology+Sex+random(Subject)+I;
-fwhm = 1;
+M=Duration+Age+Pathology+Sex+random(Subject)+I;
+
+fwhm = 6;
 if strcmp(cmeasure, 'ct')
-    fwhm = 6;
     Y0 = SurfStatSmooth(Y0, surfwhite, fwhm);
 end
 
@@ -66,7 +71,7 @@ Y0(:,sum(abs(Y0))==0) = rand(size(Y0(:,sum(abs(Y0))==0)))*eps;   % prevent numer
 slm = SurfStatLinMod(Y0,M,surfwhite);                            % fitting
 
 %% correction
-load(sprintf('data/chi^2_%s',cmeasure));
+load(sprintf('data/chis_betas_%s',cmeasure));
 alpha = 0.01;
 [pval, peak, clus] = rft_fwer(chis, 3, alpha, fwhm, mask_b, slm);
 
