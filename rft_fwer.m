@@ -28,7 +28,7 @@ W = fwhm/sqrt(4*log(2));
 p = chi2cdf(chi, df, 'upper');
 [~,~,~,q] = fdr_bh(p,alpha);
 
-bw = findcompcon(q<alpha .* mask'>0, slm.tri);
+bw = findcompcon((q<alpha) .* (mask'>0), slm.tri);
 
 m = bw.NumObjects;
 S = sum(mask>0);

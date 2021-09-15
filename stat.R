@@ -87,6 +87,7 @@ Y0[,sum(abs(Y0)) == 0] <- runif(length(Y0[,sum(abs(Y0))==0]))*.Machine$double.ep
   
 ####################################################################################################
 
+### MAIN LOOP
 #setup parallel backend to use many processors
 cores=detectCores()
 cl <- makeCluster(cores[1]-1) #not to overload your computer
