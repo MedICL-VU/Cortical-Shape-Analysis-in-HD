@@ -16,7 +16,7 @@ Sys.setenv('R_MAX_VSIZE'=32000000000)
 Sys.getenv('R_MAX_VSIZE')
 
 ### get data
-cmeasure = "lgi" # {ct,sd,lgi}
+cmeasure = "lgi" # {ct_smooth=6,sd,lgi}
 path <- getwd()
 Y0 <- readMat(sprintf("%s/data/y_%s.mat",path,cmeasure))
 Y0 <- Y0[1]$Y0
@@ -69,21 +69,21 @@ Y0[,sum(abs(Y0)) == 0] <- runif(length(Y0[,sum(abs(Y0))==0]))*.Machine$double.ep
 ####################################################################################################
 ### DEBUG
 ####################################################################################################
-  Y = Y0[,1]
-  data = data.frame(Duration,Age,Low,Med,High,Sex,Subject,Y)
-  M = lmer(Y ~ 1 + Duration + Age + Low + Med + High + Sex + (1 | Subject),data=data)
-  
-  #write(summary(M),file="results_file",append=TRUE, sep="\t")
-  
-  ### conducting general linear hypothesis tests
-  htests <- c()
-  contr <- rbind("B0-B3" = c(1,0,0,-1,0,0,0), 
-                 "B0-B4" = c(1,0,0,0,-1,0,0),
-                 "B0-B5" = c(1,0,0,0,0,-1,0))
-  
-  test = summary(glht(M,linfct=contr,df=3), test=Chisqtest())
-  chi = test[["test"]][["SSH"]]
-  coefs <- test[["model"]]@beta
+Y = Y0[,1]
+data = data.frame(Duration,Age,Sex,Low,Med,High,Subject,Y)
+M = lmer(Y ~ 0 + Duration + Age + Sex + Cntrl + Low + Med + High + (1 | Subject),data=data)
+
+#write(summary(M),file="results_file",append=TRUE, sep="\t")
+
+### conducting general linear hypothesis tests
+contr <- rbind("B3-B4" = c(0,0,0,1,-1,0,0), 
+               "B3-B5" = c(0,0,0,1,0,-1,0),
+               "B3-B6" = c(0,0,0,1,0,0,-1))
+
+#test = summary(glht(M,linfct=mcp(tension=contr)))
+test = summary(glht(M,linfct=contr,df=3), test=Chisqtest())
+chi = test[["test"]][["SSH"]]
+coefs <- test[["model"]]@beta
   
 ####################################################################################################
 
@@ -95,21 +95,20 @@ registerDoParallel(cl)
 
 chis_betas <- foreach(i=1:ncol(Y0), .combine=rbind, .packages=c('lme4','multcomp')) %dopar% {
   Y = Y0[,i]
-  data = data.frame(Duration,Age,Low,Med,High,Sex,Subject,Y)
-  M = lmer(Y ~ 1 + Duration + Age + Low + Med + High + Sex + (1 | Subject),data=data)
+  data = data.frame(Duration,Age,Sex,Low,Med,High,Subject,Y)
+  M = lmer(Y ~ 0 + Duration + Age + Sex + Cntrl + Low + Med + High + (1 | Subject),data=data)
   
   #write(summary(M),file="results_file",append=TRUE, sep="\t")
   
   ### conducting general linear hypothesis tests
-  contr <- rbind("B0-B3" = c(1,0,0,-1,0,0,0), 
-                 "B0-B4" = c(1,0,0,0,-1,0,0),
-                 "B0-B5" = c(1,0,0,0,0,-1,0))
+  contr <- rbind("B3-B4" = c(0,0,0,1,-1,0,0), 
+                 "B3-B5" = c(0,0,0,1,0,-1,0),
+                 "B3-B6" = c(0,0,0,1,0,0,-1))
   
   #test = summary(glht(M,linfct=mcp(tension=contr)))
   test = summary(glht(M,linfct=contr,df=3), test=Chisqtest())
   chi = test[["test"]][["SSH"]]
-  coefs = test[["model"]]@beta
-  
+  coefs <- test[["model"]]@beta
   c(chi,coefs)
 }
 #stop cluster

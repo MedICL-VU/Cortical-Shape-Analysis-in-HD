@@ -56,29 +56,48 @@ CapM = term( Pathology.MED );
 CapH = term( Pathology.HIGH );
 
 %% model setup
-contrast = Pathology.CNTRL - Pathology.LOW;
 
 %For CAP: 
-M=Duration+Age+Pathology+Sex+random(Subject)+I;
+M=Duration+Age+Sex+Pathology+random(Subject)+I;
 
 fwhm = 6;
 if strcmp(cmeasure, 'ct')
     Y0 = SurfStatSmooth(Y0, surfwhite, fwhm);
+    save('data/y_ct_smooth=6', Y0);
 end
 
 %% fitting
 Y0(:,sum(abs(Y0))==0) = rand(size(Y0(:,sum(abs(Y0))==0)))*eps;   % prevent numerical unstability
 slm = SurfStatLinMod(Y0,M,surfwhite);                            % fitting
 
-%% correction
-load(sprintf('data/chis_betas_%s',cmeasure));
-alpha = 0.01;
-[pval, peak, clus] = rft_fwer(chis, 3, alpha, fwhm, mask_b, slm);
+%% Vis: no correction
+% p = 1-chi2cdf(chis,3);
+% [padj, alpha] = multicmp(p,'fdr',0.05);
+% pval = struct('P',padj,'mask',mask);
+% 
+% pval.mask = mask_b;
+% figure; SurfStatView(pval, surfinfl, 'p-val after multi-correction' );
 
-%% Visualization: signficant regions after RFT 
+%% Vis: signficant regions after RFT 
+if strcmp(cmeasure, 'ct')
+    load(sprintf('data/chis_betas_%s_smooth=6',cmeasure));
+else
+    load(sprintf('data/chis_betas_%s',cmeasure));
+end
+
+alpha = 0.01;
+[pval, peak, clus] = rft_fwer(chis, 3, alpha, 1, mask, slm);
+
 pval.mask = mask_b;
 figure; SurfStatView(pval, surfinfl, 'p-val after multi-correction' );
 
 %pval.mask(:) = true;
 %figure; SurfStatView2( pval, surfinfl, 'p-val after multi-correction' );
 
+%% Vis: stratified analysis
+contrast = Pathology.CNTRL - Pathology.HIGH;
+slm = SurfStatT(slm,contrast);
+[ pval, peak, clus, clusid ] = SurfStatP(slm,mask, 0.01);
+
+pval.mask = mask_b;
+figure; SurfStatView(pval, surfinfl, 'p-val after multi-correction' );
