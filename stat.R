@@ -16,7 +16,7 @@ Sys.setenv('R_MAX_VSIZE'=32000000000)
 Sys.getenv('R_MAX_VSIZE')
 
 ### get data
-cmeasure = "lgi" # {ct_smooth=6,sd,lgi}
+cmeasure = "ct_smooth=6" # {ct_smooth=6,sd,lgi} IF CT, SMOOTH FIRST WITH SURFSTAT (FWHM=6) --> raw CT result in 
 path <- getwd()
 Y0 <- readMat(sprintf("%s/data/y_%s.mat",path,cmeasure))
 Y0 <- Y0[1]$Y0
@@ -35,7 +35,7 @@ demographics <- demographics[subj,]
 
 # correct SD correlation with ticv
 if (cmeasure == "sd") {
-  Y0 <- diag(1/demographics$ticv) %*% Y0
+  Y0 <- diag(1/(demographics$ticv^(1/3))) %*% Y0
 }
 
 ### extract parameters for lmer
