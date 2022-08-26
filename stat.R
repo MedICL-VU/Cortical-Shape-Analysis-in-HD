@@ -23,7 +23,8 @@ Y0 <- Y0[1]$Y0
 demographics <- read.csv(paste(path,"/data/demographics.csv",sep=""))
 env <- readMat(paste(path,"/env/environment.mat",sep=""))
 
-### remove unknown cap_e_group values
+### remove unknown cap_e_group (cap at baseline) values
+# cap_d_group = dynamic cap group
 valid <- demographics$cap_e_group==0 | demographics$cap_e_group==1 | demographics$cap_e_group==2 | demographics$cap_e_group==3
 demographics <- demographics[valid,]
 Y0 <- Y0[valid,]
@@ -49,7 +50,7 @@ for (sub in Subject) {
   entry = min(Duration[inds])
   Duration[inds] <- Duration[inds] - entry
 }
-dx <- demographics$cap_e_group
+dx <- demographics$cap_d_group
 Cntrl <- dx
 Cntrl[dx == 0] = 1
 Cntrl[dx != 0] = 0
@@ -116,6 +117,6 @@ stopCluster(cl)
 
 chis <- chis_betas[,1]
 betas <- chis_betas[,2:ncol(chis_betas)]
-writeMat(sprintf("%s/data/chis_betas_%s.mat",path,cmeasure),chis=chis,betas=betas)
+writeMat(sprintf("%s/data/chis_betas_d_%s.mat",path,cmeasure),chis=chis,betas=betas)
 
 

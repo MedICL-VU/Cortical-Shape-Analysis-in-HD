@@ -1,6 +1,10 @@
 data
 env
 versions
+Tools
+refs
+publication
+misc
 .DS_Store
 .Rhistory
 .RDataTmp

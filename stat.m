@@ -135,29 +135,29 @@ pval.mask = mask_b;
 figure; SurfStatView( pval, surfinfl, 'p-val after multi-correction' );
 % figure; SurfStatView( pval, surfwhite, 'p-val after multi-correction' );  % white surface
 
-% %% plot: box plot for significant regions
-% clusid=1;   % change this to see different clusters (also, use term( clus ))
-% cpval = clus.P(clusid);
-% 
-% cc = [1 0 0; 0 0 1];
-% figure('Position', [10 10 300 700]);
-% boxplot( mean(Yadj( :, pval.C == cpval ),2), dx, 'Notch','off', 'Colors', cc );
-% ylabel(sprintf('%s',cmeasure));
-% xlabel(sprintf('cluster p: %f',cpval));
-% 
-% h = findobj(gca,'tag','Median');
-% for j=1:length(h)
-%     set(h(j),'linestyle','-.','Color',[0 0 0],{'linew'},{2});
-% end
-% set(findobj(gca,'tag','Outliers'),'MarkerEdgeColor',[0 0 0]);
-% h = findobj(gca,'Tag','Box');
-% for j=1:length(h)
-%     c = cc(3-j,:);
-%     patch(get(h(j),'XData'),get(h(j),'YData'), c,'FaceAlpha',.51,'EdgeColor',cc(3-j,:));
-% end
-% 
-% %% plot: group by age interaction
-% clusid=1;
-% 
-% cpval = clus.P(clusid);
-% figure; SurfStatPlot( age, double(mean(Y(:, pval.C == cpval),2)), 1, dx ); ylabel(sprintf('%s',cmeasure));
+%% plot: box plot for significant regions
+clusid=1;   % change this to see different clusters (also, use term( clus ))
+cpval = clus.P(clusid);
+
+cc = [1 0 0; 0 0 1];
+figure('Position', [10 10 300 700]);
+boxplot( mean(Yadj( :, pval.C == cpval ),2), dx, 'Notch','off', 'Colors', cc );
+ylabel(sprintf('%s',cmeasure));
+xlabel(sprintf('cluster p: %f',cpval));
+
+h = findobj(gca,'tag','Median');
+for j=1:length(h)
+    set(h(j),'linestyle','-.','Color',[0 0 0],{'linew'},{2});
+end
+set(findobj(gca,'tag','Outliers'),'MarkerEdgeColor',[0 0 0]);
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    c = cc(3-j,:);
+    patch(get(h(j),'XData'),get(h(j),'YData'), c,'FaceAlpha',.51,'EdgeColor',cc(3-j,:));
+end
+
+%% plot: group by age interaction
+clusid=1;
+
+cpval = clus.P(clusid);
+figure; SurfStatPlot( age, double(mean(Y(:, pval.C == cpval),2)), 1, dx ); ylabel(sprintf('%s',cmeasure));

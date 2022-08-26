@@ -5,8 +5,8 @@ clear all
 
 addpath(genpath('Tools/surfstat'));    % path to surfstat lib
 
-% Measure of interest ('lgi', 'sd', 'ct')
-cmeasure = 'ct'; %'lgi'; % 'sd';
+% Measure of interest ('lgi', 'sd', 'ct' or 'ct_smooth=6' for precomputed smoothing)
+cmeasure = 'ct_smooth=6'; %'lgi'; % 'sd';
 
 load(sprintf('data/y_%s', cmeasure));
 load('data/demographics_ticv.mat');  % demographics
@@ -62,10 +62,8 @@ CapH = term( Pathology.HIGH );
 %For CAP: 
 M=Duration+Age+Sex+Pathology+random(Subject)+I;
 
-fwhm = 1; 
 if strcmp(cmeasure, 'ct')
-    fwhm = 6;
-    Y0 = SurfStatSmooth(Y0, surfwhite, fwhm);
+    Y0 = SurfStatSmooth(Y0, surfwhite, 6);
 end
 
 %% fitting
@@ -74,19 +72,17 @@ slm = SurfStatLinMod(Y0,M,surfwhite);                            % fitting
 
 %% Vis: signficant regions after RFT 
 if strcmp(cmeasure, 'ct')
-    load(sprintf('data/chis_betas_%s_smooth=6',cmeasure));
+    load(sprintf('data/chis_betas_d_%s_smooth=6',cmeasure));
 else
-    load(sprintf('data/chis_betas_%s',cmeasure));
+    load(sprintf('data/chis_betas_d_%s',cmeasure));
 end
 
 alpha = 0.01;
+fwhm = 6;
 [pval, peak, clus] = rft_fwer(chis, 3, alpha, fwhm, mask, slm);
 
 pval.mask = mask_b;
 figure; SurfStatView(pval, surfinfl, 'p-val after multi-correction' );
-
-%pval.mask(:) = true;
-%figure; SurfStatView2( pval, surfinfl, 'p-val after multi-correction' );
 
 %% Vis: stratified analysis
 contrast = Pathology.CNTRL - Pathology.HIGH; % toggle HIGH, MED, LOW
@@ -95,3 +91,15 @@ slm = SurfStatT(slm,contrast);
 
 pval.mask = mask_b;
 figure; SurfStatView(pval, surfinfl, 'p-val after multi-correction' );
+
+% visualize effect
+ef = -slm.ef ./ slm.sd;  % correct for repeated effect
+figure; SurfStatView(ef, surfinfl, 'effect size' );
+SurfStatColormap(hot)
+SurfStatColLim([-5, 0])
+
+%% Vis: age effect
+slm = SurfStatT(slm, Age);
+figure; SurfStatView(slm.t, surfinfl, 'age effect' );
+SurfStatColormap(turbo)
+SurfStatColLim([-5, 5])
