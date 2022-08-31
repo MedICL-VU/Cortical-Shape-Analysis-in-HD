@@ -1,4 +1,4 @@
-# CorticalShape_2020-2021
+# Comprehensive shape analysis of the cortex in Huntington’s disease
 
 Comprehensive cortical shape analysis in Huntington's disease. 
 
