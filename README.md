@@ -2,7 +2,7 @@
 
 Comprehensive cortical shape analysis in Huntington's disease. 
 
-Submitting for publication in *Human Brain Mapping*. 
+Submitted for publication in *Human Brain Mapping*. 
 
 ## Requirements: 
 - [SurfStat](https://mica-mni.github.io/surfstat/)
