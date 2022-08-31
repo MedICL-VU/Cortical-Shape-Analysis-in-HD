@@ -2,12 +2,12 @@
 
 Comprehensive cortical shape analysis in Huntington's disease. 
 
-Submitting for publication in *Brain*. 
+Submitting for publication in *Human Brain Mapping*. 
 
 ## Requirements: 
 - [SurfStat](https://mica-mni.github.io/surfstat/)
-- Stats and ML
-- Signal Processing
+- Stats and ML toolbox (MATLAB)
+- Signal Processing toolbox (MATLAB)
 
 ## Usage
 1. Run the R pipeline (stat.R) to completion for each feature to obtain the chi-squared values. 
